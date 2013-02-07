@@ -139,7 +139,7 @@ while(True):
 		htmlsoup = BeautifulSoup(outhtml)
 		finalhtml = htmlsoup.prettify()
 		htmlfile = open("results.html", "w")
-		htmlfile.write(finalhtml)
+		htmlfile.write(finalhtml.encode("latin1"))
 		htmlfile.close()
 
 		# Open file in your webbrowser!
