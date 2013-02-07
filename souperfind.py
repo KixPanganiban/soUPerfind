@@ -1,5 +1,5 @@
 """
-soUPerfind 0.1
+soUPerfind 0.2
 UPCAT Results Search Engine
 (c) Kix Panganiban 2011
 Requires:
@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 import httplib
 import re
 import threading
+import webbrowser
+import os
 
 """
 The main crawler thread class.
@@ -126,4 +128,20 @@ for link in mainLinks:
 while(True):
 	if crawler.running == 0:
 		print "Done! (" + str(crawler.entries) + ") entries searched; (" + str(crawler.results) + ") matches."
+		# Generate output file
+		outhtml = "<html><head><title>UPCAT Results for " + query + "</title></head><body><table><tr><th>Student ID</th><th>Name</th><th>Campus</th><th>Degree Program</th></tr>"
+		for resultRows in crawler.resultSet:
+			outhtml += "<tr>"
+			for resultField in resultRows:
+				outhtml += "<td>"+resultField+"</td>"
+			outhtml += "</tr>"
+		outhtml += "</table></body></html>"
+		htmlsoup = BeautifulSoup(outhtml)
+		finalhtml = htmlsoup.prettify()
+		htmlfile = open("results.html", "w")
+		htmlfile.write(finalhtml)
+		htmlfile.close()
+
+		# Open file in your webbrowser!
+		webbrowser.open_new_tab('file://'+os.path.abspath('results.html'))
 		break
