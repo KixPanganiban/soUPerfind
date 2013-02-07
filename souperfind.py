@@ -18,11 +18,13 @@ class crawler(threading.Thread):
 	# Running crawlers counter
 	running = 0
 
-	def __init__(self, cid, resultset, totalEntries, totalResults):
+	# Initialize results storage
+	resultSet = []
+	results = 0
+	entries = 0
+
+	def __init__(self, cid):
 		self._id = cid
-		self._resultset = resultset 
-		self._entries = totalEntries
-		self._results = totalResults
 		self._links = []
 		threading.Thread.__init__(self)
 
@@ -54,9 +56,9 @@ class crawler(threading.Thread):
 					# if query is found in any of the four fields
 					if (re.search(query, currStudent[0], re.IGNORECASE)) or (re.search(query, currStudent[1], re.IGNORECASE)) or (re.search(query, currStudent[2], re.IGNORECASE)) or (re.search(query, currStudent[3], re.IGNORECASE)):
 						print "\nMatch: \n" + currStudent[0] + "\n" + currStudent[1] + "\n" + currStudent[2] + "\n" + currStudent[3]
-						self._resultset.append([currStudent[0], currStudent[1], currStudent[2], currStudent[3]])
-						self._results += 1
-					self._entries += 1
+						crawler.resultSet.append([currStudent[0], currStudent[1], currStudent[2], currStudent[3]])
+						crawler.results += 1
+					crawler.entries += 1
 				else:
 					itemType += 1
 			print "Crawler #" +str(self._id) + ": http://upcat.up.edu.ph/results/"+link+" done."
@@ -98,18 +100,13 @@ query = raw_input("Enter search query: ")
 query.upper()
 print "\nSearching (10 active crawlers)..."
 
-# Initialize results storage
-resultSet = []
-results = 0
-entries = 0
-
 # Crawler array
 crawlers = []
 crawlerId = 0
 
 # Initialize crawlers
 for i in range(0,10):
-	newCrawler = crawler(i, resultSet, entries, results)
+	newCrawler = crawler(i)
 	crawlers.append(newCrawler)
 
 # Set crawlers free!
@@ -128,5 +125,5 @@ for link in mainLinks:
 
 while(True):
 	if crawler.running == 0:
-		print "Done. " + str(entries) + " entries searched; " + str(results) + " matches."
+		print "Done! (" + str(crawler.entries) + ") entries searched; (" + str(crawler.results) + ") matches."
 		break
