@@ -11,17 +11,18 @@ import httplib
 import re
 import threading
 
-
 """
 The main crawler thread class.
 """
 class crawler(threading.Thread):
-	def __init__(self, cid, resultset, totalEntries, totalResults, running):
+	# Running crawlers counter
+	running = 0
+
+	def __init__(self, cid, resultset, totalEntries, totalResults):
 		self._id = cid
 		self._resultset = resultset 
 		self._entries = totalEntries
 		self._results = totalResults
-		self._running = running
 		self._links = []
 		threading.Thread.__init__(self)
 
@@ -30,7 +31,6 @@ class crawler(threading.Thread):
 		self._links.append(link)
 
 	def run(self):
-		print "Crawler #" + str(self._id) + " running!"
 		for link in self._links:
 			try:
 				self._crawlConn = httplib.HTTPConnection('upcat.up.edu.ph')
@@ -60,9 +60,9 @@ class crawler(threading.Thread):
 				else:
 					itemType += 1
 			print "Crawler #" +str(self._id) + ": http://upcat.up.edu.ph/results/"+link+" done."
-			self._running -= 1
 
-		print "Crawler #" + str(self._id) + " done!"
+		crawler.running -= 1
+		print "Crawler #" + str(self._id) + " done! ("+str(crawler.running)+" crawlers left.)"
 
 
 """
@@ -107,12 +107,9 @@ entries = 0
 crawlers = []
 crawlerId = 0
 
-# Running crawlers counter
-running = 0
-
 # Initialize crawlers
 for i in range(0,10):
-	newCrawler = crawler(i, resultSet, entries, results, running)
+	newCrawler = crawler(i, resultSet, entries, results)
 	crawlers.append(newCrawler)
 
 # Set crawlers free!
@@ -121,15 +118,15 @@ for link in mainLinks:
 
 	if not crawlers[crawlerId].isAlive():
 		crawlers[crawlerId].start()
+		print "Crawler #" + str(crawlerId) + " started!"
+		crawler.running += 1
 	
 	if crawlerId == 9:
 		crawlerId = 0
 	else:
 		crawlerId += 1
 
-	running += 1
-
 while(True):
-	if running == 0:
+	if crawler.running == 0:
 		print "Done. " + str(entries) + " entries searched; " + str(results) + " matches."
 		break
