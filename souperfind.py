@@ -99,7 +99,6 @@ for link in mainSoup.find_all('a'):
 		mainLinks.append(link.get('href'))
 print " OK"
 query = raw_input("Enter search query: ")
-query.upper()
 print "\nSearching (10 active crawlers)..."
 
 # Crawler array
